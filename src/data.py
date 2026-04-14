@@ -10,7 +10,7 @@ def csv_to_pd(path: str) -> pd.DataFrame:
 
     return df 
 
-# Returns a transformer that applies one-hot-encode to categorical predictors and standardises numerical ones
+# Returns a transformer that one-hot-encodes categorical predictors and standardises numerical ones
 def transformer(cat: list[str], num: list[str]):
     enc = OneHotEncoder(drop='first', handle_unknown='ignore')
     scalar = StandardScaler(with_mean=True, with_std=True)
