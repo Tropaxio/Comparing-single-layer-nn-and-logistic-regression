@@ -15,3 +15,20 @@ defaulted on their credit card debt, and takes the value `no` if a customer did 
 
 ## Methods 
 
+
+## How to run 
+
+### 1) Create and activate a virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate   # macOS/Linux
+.venv\Scripts\Activate.ps1 # Windows PowerShell
+```
+
+### 2) Install Dependencies
+```bash 
+pip install -r requirements.txt
+```
+
+### 3) Run the Project 
+```bash
