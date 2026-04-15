@@ -17,7 +17,8 @@ def transformer(cat: list[str], num: list[str]):
 
     Clmtransformer = ColumnTransformer(
         [("categorical", enc, cat),
-         "numerical", scalar, num]
+         ("numerical", scalar, num)],
+         remainder='passthrough'
     )
 
     return Clmtransformer

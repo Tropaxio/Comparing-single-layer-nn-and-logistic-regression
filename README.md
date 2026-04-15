@@ -13,7 +13,24 @@ predict wether customers will default on their credit card debt. The dataset is 
 The dataset is a simulated data set containing information on ten thousand customers. The response variable is `default` that takes the value `yes`, in case a customer
 defaulted on their credit card debt, and takes the value `no` if a customer did not default on their credit card debt. For more information, see `reports_and_results/report.md`.
 
-## Methods 
+## Methods
+
+The dataset was preprocessed by removing missing values and separating predictors from the response variable. Predictors were classified as numerical or categorical. The data was split into training and test sets using `train_test_split` from `sklearn.model_selection`.
+
+Numerical features were standardised, and categorical features were one-hot encoded using `ColumnTransformer` from `sklearn.compose`.
+
+---
+
+## Results Summary
+
+The logistic regression model achieved an accuracy of **96.95%** on the test set. However, performance on the customers who defaulted was poor due to the small recall score:
+
+- **Recall (default = Yes): ~27.5%**;
+- Correctly identified **19 out of 69** defaulters;
+- Missed approximately **72.5%** of actual defaults.  
+
+This indicates strong class imbalance, with the model biased toward predicting non-default. This makes the model not indicated for real-world credit risk assessment as it is innefective predicting high-risk customers.
+
 
 
 ## How to run 
