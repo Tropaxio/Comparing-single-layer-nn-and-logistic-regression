@@ -1,6 +1,6 @@
 ## The Dataset 
 
-The dataset consists of of simulated data containing information on ten thousand customers. The objective is to predict which customers will default on their credit card debt. 
+The dataset consists of simulated data containing information on ten thousand customers. The objective is to predict which customers will default on their credit card debt. 
 The variables in the dataset are the following:
 
 - `default`: A factor with levels `No` and `Yes` indicating whether the customer defaulted on their debt.
