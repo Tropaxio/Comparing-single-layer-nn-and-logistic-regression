@@ -77,6 +77,31 @@ def main():
         batch_size=32
     )
 
+    # Define and fit the trainer
+    criterion, optimizer = neural_network.get_training_components(
+    model=default_model,     
+    lr=0.001
+    )
+
+    trainer = neural_network.Trainer(
+        model=default_model,
+        criterion=criterion,
+        optimizer=optimizer
+    )
+
+    trainer.fit(
+        dataloader=default_train_dataloader,
+        epochs=200
+    )
+
+    evals = neural_network.evaluate(
+        model=default_model,
+        X=X_test_tensor,
+        y=y_test_tensor
+    )
+
+    print(evals)
+
 
 
 

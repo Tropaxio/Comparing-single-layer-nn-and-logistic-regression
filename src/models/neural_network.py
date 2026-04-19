@@ -3,7 +3,7 @@ import torch
 from torch import nn 
 from torchinfo import summary
 from torch.utils.data import DataLoader, TensorDataset
-from torchmetrics import Accuracy, Recall
+from torchmetrics import Accuracy, Recall, ConfusionMatrix
 
 # Define the neural network structure
 class DefaultModel(nn.Module):
@@ -13,7 +13,7 @@ class DefaultModel(nn.Module):
         self.hidden_layer = nn.Sequential(
             nn.Linear(in_features=input_size, out_features=10, bias=True),
             nn.ReLU(),
-            nn.Dropout(0.4)
+            nn.Dropout(0.1)
         )
         # Output layer 
         self.output_layer = nn.Linear(in_features=10, out_features=1)
@@ -39,7 +39,7 @@ class Trainer:
         self.criterion = criterion
         self.optimizer = optimizer
 
-    def fit(self, dataloader, epochs, device="cpu"):
+    def fit(self, dataloader, epochs):
         for epoch in range(epochs):
             self.model.train()
             total_loss = 0
@@ -77,18 +77,21 @@ def evaluate(
 
     accuracy = Accuracy(task='binary')
     recall = Recall(task='binary')
+    confusion = ConfusionMatrix(task='binary')
 
     with torch.no_grad():
         outputs = model(X)
         probs = torch.sigmoid(outputs)
-        preds = (probs > 0.5).float()
+        preds = (probs > 0.2).float()
 
         acc = accuracy(preds, y)
         rec = recall(preds, y)
+        conf = confusion(preds, y)
 
     return {
         "accuracy": acc.item(),
-        "recall": rec.item()
+        "recall": rec.item(),
+        "confusion matrix": conf
     }
     
 # Get the dimensions of the df

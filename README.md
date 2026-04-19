@@ -23,6 +23,8 @@ Numerical features were standardised, and categorical features were one-hot enco
 
 ## Results Summary
 
+### Logistic Regression
+
 The logistic regression model achieved an accuracy of **96.95%** on the test set. However, performance on the customers who defaulted was poor due to the small recall score:
 
 - **Recall (default = Yes): ~27.5%**;
@@ -31,6 +33,41 @@ The logistic regression model achieved an accuracy of **96.95%** on the test set
 
 This indicates strong class imbalance, with the model biased toward predicting non-default. This makes the model not indicated for real-world credit risk assessment as it is innefective predicting high-risk customers.
 
+### Single Hidden-Layer Neural Network
+
+A single hidden-layer neural network with dropout regularisation was also evaluated. The model consists of:
+
+- **Input layer**: 10 hidden units with ReLU activations and dropout regularisation;
+- **Output layer**: 1 unit for binary classification.
+
+Several configurations were tested:
+
+- **Initial setup (50 epochs, dropout = 0.4, threshold = 0.5):**  
+  - Accuracy: ~96.7%;
+  - Recall: ~11.5%;
+  - Performed worse than logistic regression in identifying defaulters.
+
+- **Improved setup (200 epochs, dropout = 0.1, threshold = 0.5):**  
+  - Accuracy: ~97%;
+  - Recall: ~27.5%;
+  - Comparable to logistic regression.
+
+- **Final setup (200 epochs, dropout = 0.1, threshold = 0.1):**  
+  - Accuracy: ~95.7%;  
+  - **Recall: ~47%**;  
+  - Significant improvement in identifying defaulters. 
+
+Lowering the classification threshold increased recall by making the model less conservative when predicting the minority class (`Yes`). This is particularly important in imbalanced datasets, where standard thresholds (0.5) often lead to poor detection of rare events.
+
+---
+
+## Conclusion
+
+The neural network achieved the highest recall (**~47%**) after tuning the classification threshold, significantly improving its ability to detect defaulting customers compared to logistic regression (**~27.5%**).  
+
+However, this improvement comes at the cost of reduced accuracy and increased model complexity. Logistic regression remains a strong baseline due to its simplicity, interpretability, and minimal tuning requirements.  
+
+From the perspective of Occam’s Razor, logistic regression would generally be preferred. Nevertheless, in applications where identifying high-risk customers is critical, the improved recall of the neural network may justify its additional complexity and tuning effort.
 
 
 ## How to run 
