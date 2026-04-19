@@ -100,21 +100,7 @@ def main():
         y=y_test_tensor
     )
 
-    print(evals)
-
-
-
-
-
-    
-    
-    
-
-
-
-
-    
-
+    print(evals)   
 
 if __name__ == '__main__':
     main()
