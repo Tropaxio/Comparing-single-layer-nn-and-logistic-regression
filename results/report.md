@@ -29,3 +29,39 @@ The recall score is only of about 27.5%. This shows that there is considerable c
 
 If the linear logistic regression model was to be considered for a real credit system it would fail to flag most risky customers, leading to a significant financial loss. 
 
+### Neural Network
+
+The neural network considered has one hidden layer and one output layer with the following architecture:
+
+Hidden Layer:
+- Apply an affine linear transformation to the incoming data, mapping 3 predictors to 10 hidden units, resulting in 40 parameters to be estimated (30 weights from the connections and 10 biases);
+- Performs ReLU on the results;
+- Applies dropout regularisation with probability `p=0.4`.
+Output Layer:
+- Apply an affine linear transformation to the incoming data where 10 predictors come in and 1 goes out, resulting in 10 weights and 1 bias. Hence, 11 parameters.
+
+The summary of the neural network can be seen below:
+```text
+DefaultModel(
+  (hidden_layer): Sequential(
+    (0): Linear(in_features=3, out_features=10, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.4, inplace=False)
+  )
+  (output_layer): Linear(in_features=10, out_features=1, bias=True)
+)
+
+===================================================================================================================
+Layer (type:depth-idx)                   Input Shape               Output Shape              Param #
+===================================================================================================================
+DefaultModel                             [8000, 3]                 [8000, 1]                 --
+├─Sequential: 1-1                        [8000, 3]                 [8000, 10]                --
+│    └─Linear: 2-1                       [8000, 3]                 [8000, 10]                40
+│    └─ReLU: 2-2                         [8000, 10]                [8000, 10]                --
+│    └─Dropout: 2-3                      [8000, 10]                [8000, 10]                --
+├─Linear: 1-2                            [8000, 10]                [8000, 1]                 11
+===================================================================================================================
+Total params: 51
+```
+
+

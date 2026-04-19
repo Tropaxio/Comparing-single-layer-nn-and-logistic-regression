@@ -3,8 +3,7 @@ from dotenv import load_dotenv
 import data 
 import metrics 
 from models.logistic_regression import logistic_regression
-
-
+from models import neural_network
 
 # This is the main function 
 def main():
@@ -40,7 +39,49 @@ def main():
     clf = logistic_regression(fit_intercept= True, max_iter=200)
     clf.fit(X_train_transf, y_train)
 
+    # Compute Prediction
     y_hat = clf.predict(X_test_transf)
+
+    # Get confusion matrix and recall score
+    matrix = metrics.conf_matrix(y_true=y_test, y_pred=y_hat)
+    rec_score = metrics.rec_score(y_true=y_test, y_pred=y_hat)
+
+    ###########################
+
+    # Apply the Neural Network
+    X_shape = neural_network.get_column(X)
+
+    default_model = neural_network.DefaultModel(X_shape)
+    summary = neural_network.get_summary(
+        model=default_model,
+        input_size=X_train_transf.shape,
+        col_names=['input_size', 'output_size', 'num_params']
+    )
+
+    # Transform the dataset into tensors and torch dataset
+    X_train_tensor = neural_network.transform_to_torch_tensor(X_train_transf)
+    y_train_tensor = neural_network.transform_to_torch_tensor(y_train, is_target=True)
+    default_train = neural_network.transform_to_torch_dataset(X_train_tensor, y_train_tensor)
+
+    X_test_tensor = neural_network.transform_to_torch_tensor(X_test_transf)
+    y_test_tensor = neural_network.transform_to_torch_tensor(y_test, is_target=True)
+    default_test = neural_network.transform_to_torch_dataset(X_test_tensor, y_test_tensor)
+
+    # Transform into a pytorch's DataLoader
+    default_train_dataloader = neural_network.transform_to_dataloader(
+        default_train,
+        batch_size=32
+    )
+    default_test_dataloader = neural_network.transform_to_dataloader(
+        default_test,
+        batch_size=32
+    )
+
+
+
+
+
+    
     
     
 

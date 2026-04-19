@@ -1,13 +1,11 @@
-import numpy as np
 import pandas as pd
 import torch
 from torch import nn 
 from torchinfo import summary
 from torch.utils.data import DataLoader, TensorDataset
-import pytorch_lightning as pl
-from pytorch_lightning import Trainer
-from torchmetrics import Accuracy
+from torchmetrics import Accuracy, Recall
 
+# Define the neural network structure
 class DefaultModel(nn.Module):
     def __init__(self, input_size):
         super(DefaultModel, self).__init__()
@@ -23,59 +21,83 @@ class DefaultModel(nn.Module):
     def forward(self, x):
         x = self.hidden_layer(x)
         x = self.output_layer(x)
-        x = self.sigmoid(x)
 
-        return x
+        return x  
+    
+def get_training_components(
+        model: nn.Module, lr: float 
+):
+    criterion = nn.BCEWithLogitsLoss()  
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-class RegressionModule(pl.LightningModule):
-    def __init__(self, model):
-        super().__init__()
+    return criterion, optimizer
+
+# Define the .fit wrapper
+class Trainer:
+    def __init__(self, model, criterion, optimizer):
         self.model = model
-        self.loss_fn = nn.BCEWithLogitsLoss()
+        self.criterion = criterion
+        self.optimizer = optimizer
 
-    def forward(self, x):
-        return self.model(x)
+    def fit(self, dataloader, epochs, device="cpu"):
+        for epoch in range(epochs):
+            self.model.train()
+            total_loss = 0
 
-    def training_step(self, batch, batch_idx):
-        x, y = batch
-        preds = self(x)
+            for X, y in dataloader:
+                self.optimizer.zero_grad()
+                loss = self.criterion(self.model(X), y)
+                loss.backward()
+                self.optimizer.step()
 
-        loss = self.loss_fn(preds, y)
-        
-        probs = torch.sigmoid(preds)
-        acc = self.acc(probs, y.int())
+                total_loss += loss.item()
 
-        self.log("train_loss", loss, prog_bar=True)
-        self.log("train_acc", acc, prog_bar=True)
+            print(f"Epoch {epoch+1}: {total_loss:.4f}")
 
-        return loss
 
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        preds = self(x)
-        loss = self.loss_fn(preds, y)
+def predict(
+        model: nn.Module,
+        X: torch.Tensor 
+):
+    model.eval()
 
-        self.log("val_loss", loss)
-        self.log("val_mae", self.mae(preds, y))
+    with torch.no_grad():
+        outputs = model(X)
+        probs = torch.sigmoid(outputs)
+        preds = (probs > 0.5).float()
 
-    def test_step(self, batch, batch_idx):
-        x, y = batch
-        preds = self(x)
-        loss = self.loss_fn(preds, y)
+        return preds
 
-        self.log("test_loss", loss)
-        self.log("test_mae", self.mae(preds, y))
+def evaluate(
+        model: nn. Module,
+        X: torch.Tensor,
+        y: torch.Tensor 
+):
+    model.eval()
 
-    def configure_optimizers(self):
-        return torch.optim.RMSprop(self.parameters(), lr=1e-3)
+    accuracy = Accuracy(task='binary')
+    recall = Recall(task='binary')
+
+    with torch.no_grad():
+        outputs = model(X)
+        probs = torch.sigmoid(outputs)
+        preds = (probs > 0.5).float()
+
+        acc = accuracy(preds, y)
+        rec = recall(preds, y)
+
+    return {
+        "accuracy": acc.item(),
+        "recall": rec.item()
+    }
     
-    
-
-def get_dimension(df: pd.DataFrame) -> tuple:
+# Get the dimensions of the df
+def get_column(df: pd.DataFrame) -> tuple:
     shape = df.shape[1]
     
     return shape 
 
+# Get a summary how many parameters are going to exist in the nn
 def get_summary(
         model: nn.Module, 
         input_size: int,
@@ -83,22 +105,29 @@ def get_summary(
 ):
     return summary(model=model, input_size=input_size,col_names=col_names)
 
-def transform_to_torch_tensor(df: pd.DataFrame):
-    tensor = torch.tensor(df.astype(np.float32))
+# Transform a df to a torch tensor
+def transform_to_torch_tensor(data, is_target=False):
+    if isinstance(data, (pd.DataFrame, pd.Series)):
+        data = data.values
 
-    return tensor 
+    tensor = torch.tensor(data, dtype=torch.float32)
 
+    if is_target:
+        tensor = tensor.view(-1, 1)
+
+    return tensor
+
+# Transform into a TensorDataset
 def transform_to_torch_dataset(X: torch.Tensor, Y: torch.Tensor):
     dataset = TensorDataset(X, Y)
 
     return dataset 
 
-def get_DataLoader(
+# Transform a TensorDataset into a DataLoader
+def transform_to_dataloader(
         dataset: TensorDataset,
         batch_size: int,
         shuffle = True
 ):
     
     return DataLoader(dataset=dataset, batch_size=batch_size, shuffle=shuffle)
-
-# defs modules
