@@ -19,6 +19,8 @@ The dataset was preprocessed by removing missing values and separating predictor
 
 Numerical features were standardised, and categorical features were one-hot encoded using `ColumnTransformer` from `sklearn.compose`.
 
+For the neural network, dataset was converted from Pandas DataFrames into PyTorch tensors. The target variable was reshaped to match the expected input of the loss function. The data was then wrapped into TensorDataset objects and loaded with DataLoader to enable efficient mini-batch training (batch size = 32) with shuffling applied.
+
 ---
 
 ## Results Summary

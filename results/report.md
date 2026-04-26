@@ -14,6 +14,10 @@ The CSV dataset is converted into a Pandas DataFrame, and rows with missing valu
 
 The data is split into training and test sets using `train_test_split` from the `model_selection` module in scikit-learn. Numerical predictors are standardised, and categorical predictors are one-hot encoded using `ColumnTransformer` from the compose module.
 
+Prior to training the neural network, the dataset was prepared and transformed into a format compatible with PyTorch. The predictors and target variables were converted from Pandas DataFrames into PyTorch tensors. All data were cast to `32-bit` floating point format and the target variable was reshaped into a two-dimensional tensor with a single output column to match the expected input shape of the loss function.
+
+The tensors were then wrapped into TensorDataset objects and then transformed into DataLoader objects to facilitate iterations, mini-batch training, with a batch size of `32` and shuffling enabled.
+
 ## Methods, Models and Results 
 
 ### Logistic Regression
