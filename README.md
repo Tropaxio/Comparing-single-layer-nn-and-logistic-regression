@@ -1,6 +1,6 @@
-# Comparing the Performance of a Single Layer Neural Network to Linear Logistic Regression
+# Comparing a Single-Hidden-Layer Neural Network with Linear Logistic Regression
 
-In this project we compare the performance of a single-hidden-layer neural network with dropout regularisation against linear logistic regression. The classification task is to
+This project compares the performance of a single-hidden-layer neural network with dropout regularisation against linear logistic regression. The classification task is to
 predict whether customers will default on their credit card debt. The dataset is included in the files since it comes from the book Introduction to Statistical Learning by James, Witten, Hastie, Tibshirani and Taylor, which is publicly available.
 
 ## Quick Results
