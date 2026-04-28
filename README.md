@@ -1,7 +1,7 @@
 # Comparing the Performance of a Single Layer Neural Network to Linear Logistic Regression
 
-In this project we compare the performance of a single layered neural network with dropout regularization against linear logistic regression. The classification task is to
-predict wether customers will default on their credit card debt. The dataset is included in the files since it comes from the book Introduction to Statistical Learning by James, Witten, Hastie, Tibshirani and Taylor, which is publicly available.
+In this project we compare the performance of a single-layer neural network with dropout regularization against linear logistic regression. The classification task is to
+predict whether customers will default on their credit card debt. The dataset is included in the files since it comes from the book Introduction to Statistical Learning by James, Witten, Hastie, Tibshirani and Taylor, which is publicly available.
 
 ## Project Structure 
 
@@ -33,7 +33,7 @@ The logistic regression model achieved an accuracy of **96.95%** on the test set
 - Correctly identified **19 out of 69** defaulters;
 - Missed approximately **72.5%** of actual defaults.  
 
-This indicates strong class imbalance, with the model biased toward predicting non-default. This makes the model not indicated for real-world credit risk assessment as it is innefective predicting high-risk customers.
+This indicates strong class imbalance, with the model biased toward predicting non-default. This makes the model not indicated for real-world credit risk assessment as it is inefective predicting high-risk customers.
 
 ### Single Hidden-Layer Neural Network
 
