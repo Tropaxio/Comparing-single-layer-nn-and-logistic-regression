@@ -29,9 +29,9 @@ A logistic regression model is fitted to the training data, and its performance 
 | **Actual: No** | 1,920 | 11 |
 | **Actual: Yes** | 50 | 19 |
 
-The recall score is only of about **27.5%**. This shows that there is considerable class inbalance on the data, that is, there is much more `No` values then `Yes` values, making the model biased towards `No`. Since it only correctly predicted 27.5% of customers who actually defaulted, missing **72.5%** of those observations. 
+The recall score is only about **27.5%**. This shows that there is considerable class inbalance on the data, that is, there is much more `No` values than `Yes` values, making the model biased towards `No`. Since it only correctly predicted 27.5% of customers who actually defaulted, missing **72.5%** of those observations. 
 
-If the linear logistic regression model was to be considered for a real credit system it would fail to flag most risky customers, leading to a significant financial loss. 
+If the linear logistic regression model were considered for a real credit system it would fail to flag most risky customers, leading to a significant financial loss. 
 
 ### Neural Network
 
@@ -67,7 +67,7 @@ DefaultModel                             [8000, 3]                 [8000, 1]    
 ===================================================================================================================
 Total params: 51
 ```
-One the first run, the hyperparameters chosen are `50` epochs with batch_size of `32` and a probability threshold of 0.5. On the tests, the `loss` after `50` epochs was around `21`, having a **96.7% accuracy**, but a recall score significantly lower, when compared to logistic regression, of around 11.5%. The confusion matrix obtained is:
+On the first run, the hyperparameters chosen are `50` epochs with batch_size of `32` and a probability threshold of 0.5. On the tests, the `loss` after `50` epochs was around `21`, having a **96.7% accuracy**, but a recall score significantly lower, when compared to logistic regression, of around 11.5%. The confusion matrix obtained is:
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
 | **Actual: No** | 1,927 | 4 |
@@ -79,7 +79,7 @@ A second experiment was conducted with `200` epochs and a reduced dropout probab
 | **Actual: No** | 1921 | 10 |
 | **Actual: Yes** | 50 | 19 |
 
-A third experiment maintained `200` epochs, a dropout probability of `p=0.1`, but reduced the classification threshold of predicting `yes` from `0.5` to `0.1`. Given the class imbalance towards `no`, the dataset is biased towards these value, leading to a model that is too conservative in predicting `yes`, and so by dropping the threshold a much better recall score was obtained, of around **47%**, although accuracy score dropped to **95.7%**.
+A third experiment maintained `200` epochs, a dropout probability of `p=0.1`, but reduced the classification threshold of predicting `yes` from `0.5` to `0.1`. Given the class inbalance towards `no`, the dataset is biased towards this value, leading to a model that is too conservative in predicting `yes`, and so by dropping the threshold a much better recall score was obtained, of around **47%**, although accuracy score dropped to **95.7%**.
 
 ## Conclusion 
 
