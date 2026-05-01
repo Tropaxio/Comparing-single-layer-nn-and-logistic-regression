@@ -47,7 +47,7 @@ def main():
     rec_score = metrics.rec_score(y_true=y_test, y_pred=y_hat)
 
     ###########################
-
+    
     # Apply the Neural Network
     X_shape = neural_network.get_column(X)
 

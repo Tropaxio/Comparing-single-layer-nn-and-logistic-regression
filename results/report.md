@@ -10,7 +10,7 @@ The variables in the dataset are the following:
 
 ## Data Processing 
 
-The CSV dataset is converted into a Pandas DataFrame, and rows with missing values are removed. The predictors and response variable are then separated, and the predictors are classified as categorical or numerical.
+The CSV dataset is converted into a Pandas DataFrame, and rows with missing values are removed. In fact, no missing rows were found, but the process is performed either way as it's considered good general practice (if model's performance is not drastically affected). The predictors and response variable are then separated, and the predictors are classified as categorical or numerical.
 
 The data is split into training and test sets using `train_test_split` from the `model_selection` module in scikit-learn. Numerical predictors are standardised, and categorical predictors are one-hot encoded using `ColumnTransformer` from the compose module.
 
