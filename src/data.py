@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
-from imblearn.over_sampling import RandomOverSampler, SMOTE
+from imblearn.over_sampling import RandomOverSampler, SMOTENC
 from imblearn.under_sampling import RandomUnderSampler, TomekLinks
 from imblearn.combine import SMOTETomek
 
@@ -55,11 +55,12 @@ def random_undersampling(
 
 # Define SMOTE oversampling 
 def smote(
+    categorica_features,
     sampling_strategy,
     random_state,
     k_neighbors
 ):
-    return SMOTE(sampling_strategy=sampling_strategy, random_state=random_state, k_neighbors=k_neighbors)
+    return SMOTENC(categorical_features=categorica_features, sampling_strategy=sampling_strategy, random_state=random_state, k_neighbors=k_neighbors)
 
 # Define Tomek
 def tomek(
@@ -69,14 +70,18 @@ def tomek(
     
 # Define SMOTE-Tomek hybrid sampling 
 def smote_tomek(
+    categorical_features,
     sampling_strategy,
     random_state,
-    smote, 
-    tomek
+    k_neighbors
 ):
     return SMOTETomek(
+        smote=SMOTENC(
+            categorical_features=categorical_features,
+            sampling_strategy=sampling_strategy,
+            random_state=random_state,
+            k_neighbors=k_neighbors
+        ),
         sampling_strategy=sampling_strategy,
-        random_state=random_state,
-        smote=smote
-        tomek=tomek=
+        random_state=random_state
     )

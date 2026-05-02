@@ -1,4 +1,4 @@
-## The Dataset 
+# The Dataset 
 
 The dataset consists of simulated data containing information on ten thousand customers. The objective is to predict which customers will default on their credit card debt. 
 The variables in the dataset are the following:
@@ -8,7 +8,7 @@ The variables in the dataset are the following:
 - `balance`:  The average balance that the customer has remaining on their credit card after making their monthly payment.
 - `income`: Income of customer.
 
-## Data Processing 
+# Data Processing 
 
 The CSV dataset is converted into a Pandas DataFrame, and rows with missing values are removed. In fact, no missing rows were found, but the process is performed either way as it's considered good general practice (if model's performance is not drastically affected). The predictors and response variable are then separated, and the predictors are classified as categorical or numerical.
 
@@ -18,22 +18,53 @@ Prior to training the neural network, the dataset was prepared and transformed i
 
 The tensors were then wrapped into TensorDataset objects and then transformed into DataLoader objects to facilitate iterations, mini-batch training, with a batch size of `32` and shuffling enabled.
 
-## Methods, Models and Results 
+# Methods, Models and Results 
 
-### Logistic Regression
+## Logistic Regression (No Resampling)
 
-A logistic regression model is fitted to the training data, and its performance is then evaluated. The model achieves an accuracy of 96.95%, with the following confusion matrix:
+A logistic regression model is fitted to the training data, and its performance is then evaluated. The model achieves an accuracy of **96.95%**, with the following confusion matrix:
 
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
 | **Actual: No** | 1,920 | 11 |
 | **Actual: Yes** | 50 | 19 |
 
-The recall score is only of about **27.5%**. This shows that there is considerable class inbalance on the data, that is, there is much more `No` values then `Yes` values, making the model biased towards `No`. Since it only correctly predicted 27.5% of customers who actually defaulted, missing **72.5%** of those observations. 
+The recall score is only of about **27.5%**. This shows that there is considerable class imbalance on the data, that is, there is much more `No` values then `Yes` values, making the model biased towards `No`. Since it only correctly predicted 27.5% of customers who actually defaulted, missing **72.5%** of those observations. 
 
 If the linear logistic regression model was to be considered for a real credit system it would fail to flag most risky customers, leading to a significant financial loss. 
 
-### Neural Network
+## Logistic Regression (Random OverSampling)
+
+Due to the class imbalance previously observed, various resampling techniques were performed on the training data (to avoid leakage). The first one is random oversampling which  resulted in a model that is much more prone to predict `Yes` than before.
+
+It resulted in an accuracy loss due to the increased number of false negatives, now around **86.7%**, but a much higher recall score of around **86%** as shown in the following confusion matrix:
+
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1,674 | 257 |
+| **Actual: Yes** | 9 | 60 |
+
+## Logistic Regression (Random UnderSampling)
+
+Random undersampling produced results similar to random oversampling, achieving the same recall score.
+
+## Logistic Regression (SMOTE Oversampling)
+
+SMOTE is tested afterwards, but results in a better accuracy score, of around **88.35%**, but correctly predicted one fewer true positive, which led to a recall score of around **85.5%** and the following matrix:
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1,708 | 223 |
+| **Actual: Yes** | 10 | 59 |
+
+## Logistic Regression (SMOTE-Tomek)
+
+SMOTE-Tomek is tested lastly as a hybrid approach. The accuracy score is similar to SMOTE, of around **88.1%**, but correctly predicted one fewer true positive, which then results in a recall score of around **85.5%** and the following matrix:
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1,703 | 228 |
+| **Actual: Yes** | 10 | 59 |
+
+## Neural Network
 
 The neural network considered has one hidden layer and one output layer with the following architecture:
 

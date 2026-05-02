@@ -20,7 +20,7 @@ def main():
     y = Default["default"].map({"No": 0, "Yes": 1})
     cat = ["student"]
     num = ["balance", "income"]
-
+  
     # Separate the data into training and test sets
     X_train, X_test, y_train, y_test = data.make_splits(
         X=X,
@@ -29,7 +29,7 @@ def main():
         random_state=42,
         shuffle=True
     )
-    
+        
     # Apply the transformations
     ct = data.transformer(cat=cat, num=num)
     X_train_transf = ct.fit_transform(X_train)
@@ -101,6 +101,6 @@ def main():
     )
 
     print(evals)   
-
+    
 if __name__ == '__main__':
     main()
