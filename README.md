@@ -55,13 +55,11 @@ The repository `src` contains the code to reproduce preprocessing, modelling and
 
 The logistic regression baseline achieved high overall accuracy (**96.95%**) but low recall for defaults (**~27.5%**), identifying only 19 of 69 defaulters in the test set. This is a consequence of strong class imbalance.
 
-Resampling the training set improves recall at the cost of accuracy. Experiments included:
+Resampling the training set improves recall at the cost of accuracy, satisfying the expected recall-accuracy trade-off. Experiments included:
 
 - Random oversampling / undersampling: raised recall substantially (recall ~86%) while reducing accuracy (to ~86.7% in one run).
 - SMOTE oversampling: produced higher recall with better accuracy trade-offs (accuracy ~88.35%, recall ~85.5%).
 - SMOTE-Tomek: similar behaviour to SMOTE (accuracy ~88.1%, recall ~85.5%).
-
-These experiments show the typical precision–recall trade-off on imbalanced datasets: resampling increases detection of the minority class but may reduce overall accuracy.
 
 ### Single Hidden-Layer Neural Network
 
