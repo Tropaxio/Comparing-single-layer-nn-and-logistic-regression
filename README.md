@@ -1,34 +1,51 @@
 # Comparing a Single-Hidden-Layer Neural Network with Linear Logistic Regression
 
-This project compares the performance of a single-hidden-layer neural network with dropout regularisation against linear logistic regression. The classification task is to
-predict whether customers will default on their credit card debt. The dataset is included in the files since it comes from the book Introduction to Statistical Learning by James, Witten, Hastie, Tibshirani and Taylor, which is publicly available.
+This project compares the performance of a single-hidden-layer neural network with dropout regularisation against linear logistic regression. The classification task is to predict whether customers will default on their credit card debt. The dataset is included in the files and contains information on 10,000 customers.
 
 ## Quick Results
 
-| Model | Threshold | Accuracy | Recall for Defaults | Main Takeaway |
-|---|---:|---:|---:|---|
-| Logistic Regression | 0.5 | 96.95% | 27.5% | Strong baseline, but misses many defaulters |
-| Neural Network, initial | 0.5 | ~96.7% | ~11.5% | Worse at detecting defaults |
-| Neural Network, tuned | 0.5 | ~97.0% | ~27.5% | Comparable to logistic regression |
-| Neural Network, final | 0.1 | ~95.7% | ~47.0% | Best recall, but lower accuracy |
+| Model | Accuracy | Recall for Defaults |
+|---|---:|---:|
+| Logistic Regression (No resampling) | 96.95% | 27.5% |
+| Logistic Regression (Random oversampling) | ~86.7% | ~86% |
+| Logistic Regression (Random undersampling) | ~86.7% | ~86% |
+| Logistic Regression (SMOTE) | ~88.35% | ~85.5% |
+| Logistic Regression (SMOTE-Tomek) | ~88.1% | ~85.5% |
+| Neural Network (No resampling) | ~96.7% | ~11.5% |
+| Neural Network (Tuned) | ~97.0% | ~27.5% |
+| Neural Network (Threshold 0.1) | ~95.7% | ~47.0% |
+| Neural Network (Random oversampling) | ~72.8% | ~97.1% |
+| Neural Network (SMOTE) | ~77.9% | ~95.6% |
+| Neural Network (SMOTE-Tomek) | ~78.8% | ~92.7% |
 
-## Project Structure 
+## Project Structure
 
 - `src` - source for project architecture, models and evaluations;
-- `reports` - detailed report of the results obtained with visual plots.
+- `results` - detailed report of the results and visual plots (see [results/report.md](results/report.md)).
 
 ## The Dataset
 
-The dataset is a simulated data set containing information on ten thousand customers. The response variable is `default` that takes the value `yes`, in case a customer
-defaulted on their credit card debt, and takes the value `no` if a customer did not default on their credit card debt. For more information, see `reports_and_results/report.md`.
+The dataset is a simulated set containing information on ten thousand customers. The response variable is `default` (`Yes`/`No`). Other variables include:
+
+- `student`: whether the customer is a student (`Yes`/`No`);
+- `balance`: average balance remaining after the monthly payment;
+- `income`: customer income.
+
+For more information and full experiment details see [results/report.md](results/report.md).
 
 ## Methods
 
-The dataset was preprocessed by removing missing values and separating predictors from the response variable. Predictors were classified as numerical or categorical. The data was split into training and test sets using `train_test_split` from `sklearn.model_selection`.
+Data processing and modelling steps:
 
-Numerical features were standardised, and categorical features were one-hot encoded using `ColumnTransformer` from `sklearn.compose`.
+- The CSV dataset is loaded into a Pandas DataFrame and rows with missing values are removed (no missing values were found in this dataset).
+- Predictors and the response are separated; predictors are classified as numerical or categorical.
+- The data are split into training and test sets using `train_test_split` from `sklearn.model_selection`.
+- Numerical features are standardised and categorical features are one-hot encoded using `ColumnTransformer` from `sklearn.compose`.
+- For the neural network, data are converted from Pandas DataFrames into PyTorch tensors (cast to 32-bit floats) and the target is transformed into
+a tensor with a single output column.
+- Tensors are wrapped into `TensorDataset` objects and loaded into `DataLoader` for mini-batch training.
 
-For the neural network, the dataset was converted from Pandas DataFrames into PyTorch tensors. The target variable was reshaped to match the expected input of the loss function. The data was then wrapped into TensorDataset objects and loaded with DataLoader to enable efficient mini-batch training (batch size = 32) with shuffling applied.
+The repository `src` contains the code to reproduce preprocessing, modelling and evaluation.
 
 ---
 
@@ -36,50 +53,60 @@ For the neural network, the dataset was converted from Pandas DataFrames into Py
 
 ### Logistic Regression
 
-The logistic regression model achieved an accuracy of **96.95%** on the test set. However, performance on the customers who defaulted was poor due to the small recall score:
+The logistic regression baseline achieved high overall accuracy (**96.95%**) but low recall for defaults (**~27.5%**), identifying only 19 of 69 defaulters in the test set. This is a consequence of strong class imbalance.
 
-- **Recall (default = Yes): ~27.5%**;
-- Correctly identified **19 out of 69** defaulters;
-- Missed approximately **72.5%** of actual defaults.  
+Resampling the training set improves recall at the cost of accuracy. Experiments included:
 
-This indicates strong class imbalance, with the model biased toward predicting non-default. This makes the model not indicated for real-world credit risk assessment as it is inefective predicting high-risk customers.
+- Random oversampling / undersampling: raised recall substantially (recall ~86%) while reducing accuracy (to ~86.7% in one run).
+- SMOTE oversampling: produced higher recall with better accuracy trade-offs (accuracy ~88.35%, recall ~85.5%).
+- SMOTE-Tomek: similar behaviour to SMOTE (accuracy ~88.1%, recall ~85.5%).
+
+These experiments show the typical precision–recall trade-off on imbalanced datasets: resampling increases detection of the minority class but may reduce overall accuracy.
 
 ### Single Hidden-Layer Neural Network
 
-A single hidden-layer neural network with dropout regularisation was also evaluated. The model consists of:
+The neural network used has one hidden layer (10 units, ReLU) with dropout and a single output unit for binary classification. The model summary and parameter counts are given in the detailed report ([results/report.md](results/report.md)).
 
-- **Hidden layer**: 10 hidden units with ReLU activations and dropout regularisation;
-- **Output layer**: 1 unit for binary classification.
+Key experiments and findings:
 
-Several configurations were tested:
+- Initial setup (50 epochs, dropout=0.4, threshold=0.5): accuracy ~96.7%, recall ~11.5%.
+- Tuning (200 epochs, dropout=0.1, threshold=0.5): accuracy ~97.0%, recall ~27.5% (comparable to logistic regression).
+- Lowering the classification threshold (200 epochs, dropout=0.1, threshold=0.1): accuracy ~95.7%, recall ~47.0% (best recall observed).
 
-- **Initial setup (50 epochs, dropout = 0.4, threshold = 0.5):**  
-  - Accuracy: ~96.7%;
-  - Recall: ~11.5%;
-  - Performed worse than logistic regression in identifying defaulters.
+Resampling with the neural network:
 
-- **Improved setup (200 epochs, dropout = 0.1, threshold = 0.5):**  
-  - Accuracy: ~97%;
-  - Recall: ~27.5%;
-  - Comparable to logistic regression.
+- Random oversampling: recall up to ~97.1% but accuracy dropped to ~72.8% (many false positives).
+- SMOTE oversampling: recall ~95.6% with accuracy ~77.9%.
+- SMOTE-Tomek: recall ~92.7% with accuracy ~78.8%.
 
-- **Final setup (200 epochs, dropout = 0.1, threshold = 0.1):**  
-  - Accuracy: ~95.7%;  
-  - **Recall: ~47%**;  
-  - Significant improvement in identifying defaulters. 
-
-Lowering the classification threshold increased recall by making the model less conservative when predicting the minority class (`Yes`). This is particularly important in imbalanced datasets, where standard thresholds (0.5) often lead to poor detection of rare events.
+Overall, the neural network with SMOTE or with a lower classification threshold achieves much higher recall, at the expected cost in accuracy.
 
 ---
 
 ## Conclusion
 
-The neural network achieved the highest recall (**~47%**) after tuning the classification threshold, significantly improving its ability to detect defaulting customers compared to logistic regression (**~27.5%**).  
+If the objective is to maximise recall for the minority class, the best-performing setup in these experiments was the neural network trained with SMOTE. This configuration detects many more defaulters but reduces overall accuracy and increases false positives.
 
-However, this improvement comes at the cost of reduced accuracy and increased model complexity. Logistic regression remains a strong baseline due to its simplicity, interpretability, and minimal tuning requirements.  
+Logistic regression remains a strong, interpretable baseline and performs competitively after resampling. Choosing between models and thresholds depends on the cost, interpretability, scalability and maintainability as well of false negatives vs false positives.
 
-From the perspective of Occam’s Razor, logistic regression would generally be preferred. Nevertheless, in applications where identifying high-risk customers is critical, the improved recall of the neural network may justify its additional complexity and tuning effort.
+## How to run
 
+1) Create and activate a virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate   # macOS/Linux
+.venv\Scripts\Activate.ps1 # Windows PowerShell
+```
+
+2) Install Dependencies
+```bash 
+pip install -r requirements.txt
+```
+
+3) Run the Project 
+```bash
+python src/main.py
+```
 
 ## How to run 
 

@@ -16,7 +16,7 @@ The data is split into training and test sets using `train_test_split` from the 
 
 Prior to training the neural network, the dataset was prepared and transformed into a format compatible with PyTorch. The predictors and target variables were converted from Pandas DataFrames into PyTorch tensors. All data were cast to `32-bit` floating point format and the target variable was reshaped into a two-dimensional tensor with a single output column to match the expected input shape of the loss function.
 
-The tensors were then wrapped into TensorDataset objects and then transformed into DataLoader objects to facilitate iterations, mini-batch training, with a batch size of `32` and shuffling enabled.
+The tensors were then wrapped into `TensorDataset` objects and loaded into `DataLoader` objects to facilitate mini-batch training, with a batch size of `32` and shuffling enabled.
 
 # Methods, Models and Results 
 
@@ -31,13 +31,17 @@ A logistic regression model is fitted to the training data, and its performance 
 
 The recall score is only about **27.5%**. This shows that there is considerable class inbalance on the data, that is, there is much more `No` values than `Yes` values, making the model biased towards `No`. Since it only correctly predicted 27.5% of customers who actually defaulted, missing **72.5%** of those observations. 
 
-If the linear logistic regression model were considered for a real credit system it would fail to flag most risky customers, leading to a significant financial loss. 
+If the linear logistic regression model were considered for a real credit system, it would fail to flag the most risky customers, leading to a significant financial loss.
 
 ## Logistic Regression (Random OverSampling)
 
-Due to the class imbalance previously observed, various resampling techniques were performed on the training data (to avoid leakage). The first one is random oversampling which  resulted in a model that is much more prone to predict `Yes` than before.
+Due to the class imbalance previously observed, various resampling techniques were performed on the training data (to avoid leakage). The first one is random oversampling, from `RandomOverSampler` module by the `over_sampling` class in `imbalanced-learn`. 
 
-It resulted in an accuracy loss due to the increased number of false negatives, now around **86.7%**, but a much higher recall score of around **86%** as shown in the following confusion matrix:
+The experiment ran with parameters:
+- `sampling_strategy`: `minority`
+- `random_state`: `42`
+
+This resulted in a model that is much more prone to predict `Yes` than before. It caused an accuracy loss, due to the increased number of false negatives, now around **86.7%**, but a much higher recall score of around **86%** as shown in the following confusion matrix:
 
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
@@ -46,11 +50,16 @@ It resulted in an accuracy loss due to the increased number of false negatives, 
 
 ## Logistic Regression (Random UnderSampling)
 
-Random undersampling produced results similar to random oversampling, achieving the same recall score.
+Random undersampling, with analogous parameters to random oversampling, produced results similar to random oversampling, achieving the same recall score.
 
 ## Logistic Regression (SMOTE Oversampling)
 
-SMOTE is tested afterwards, but results in a better accuracy score, of around **88.35%**, but correctly predicted one fewer true positive, which led to a recall score of around **85.5%** and the following matrix:
+SMOTE is tested afterwards with the following parameters:
+- `sampling_strategy`: `minority`
+- `random_state`: `42`
+- `k_neighbors`: `5`
+
+It results in a better accuracy score, of around **88.35%**, but correctly predicted one fewer true positive, which led to a recall score of around **85.5%** and the following matrix:
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
 | **Actual: No** | 1,708 | 223 |
@@ -58,13 +67,19 @@ SMOTE is tested afterwards, but results in a better accuracy score, of around **
 
 ## Logistic Regression (SMOTE-Tomek)
 
-SMOTE-Tomek is tested lastly as a hybrid approach. The accuracy score is similar to SMOTE, of around **88.1%**, but correctly predicted one fewer true positive, which then results in a recall score of around **85.5%** and the following matrix:
+SMOTE-Tomek is tested lastly as a hybrid approach.
+- `sampling_strategy`: `minority`
+- `random_state`: `42`
+- `smote`: with `sampling_strategy`: `minority`, `random_state`: `42` and `k_neighbors`: `5`
+- `tomek`: with `sampling_strategy`: `minority`.
+
+The accuracy score is similar to SMOTE, of around **88.1%**, but correctly predicted one fewer true positive, which then results in a recall score of around **85.5%** and the following matrix:
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
 | **Actual: No** | 1,703 | 228 |
 | **Actual: Yes** | 10 | 59 |
 
-## Neural Network
+## Neural Network (No Resampling)
 
 The neural network considered has one hidden layer and one output layer with the following architecture:
 
@@ -104,18 +119,58 @@ On the first run, the hyperparameters chosen are `50` epochs with batch_size of 
 | **Actual: No** | 1,927 | 4 |
 | **Actual: Yes** | 59 | 10 |
 
-A second experiment was conducted with `200` epochs and a reduced dropout probability of `p=0.1`. The loss remained more or less the same, now around `19`, while the **accuracy increased slightly to 97%**. The recall score to about the same of the logistic regression, **27.5%**. The confusion matrix is:
+A second experiment was conducted with `200` epochs and a reduced dropout probability of `p=0.1`. The loss remained more or less the same, now around `19`, while the **accuracy increased slightly to 97%**. The recall score rose to about the same as logistic regression (27.5%). The confusion matrix is:
 | | Pred: No | Pred: Yes |
 | :--- | :---: | :---: |
 | **Actual: No** | 1921 | 10 |
 | **Actual: Yes** | 50 | 19 |
 
-A third experiment maintained `200` epochs, a dropout probability of `p=0.1`, but reduced the classification threshold of predicting `yes` from `0.5` to `0.1`. Given the class inbalance towards `no`, the dataset is biased towards this value, leading to a model that is too conservative in predicting `yes`, and so by dropping the threshold a much better recall score was obtained, of around **47%**, although accuracy score dropped to **95.7%**.
+A third experiment maintained `200` epochs and a dropout probability of `p=0.1`, but reduced the classification threshold for predicting `Yes` from `0.5` to `0.1`. Given the class imbalance towards `No`, the dataset is biased toward that label, which makes the model conservative in predicting `Yes`. By lowering the threshold the recall increased to around **47%**, although the accuracy dropped to **95.7%**.
 
+## Neural Network (Random Oversampling)
+
+By running the experiment with the same random oversampling conditions as logistic regression, the neural network (after `50` epochs, `learning_rate=0.001`, dropout `p=0.1`) achieved a whopping **97.1%** recall but a much lower accuracy of around **72.8%**, driven by increased false positives. The confusion matrix is
+
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1390 | 541 |
+| **Actual: Yes** | 2 | 67 |
+
+By repeating the experiment with `200` epochs we obtained no significant improvement.
+
+## Neural Network (Random Undersampling)
+
+In this experiment, both with `50` epochs and `200` epochs, we obtained similar metrics to the random oversampling.
+
+## Neural Network (SMOTE Oversampling)
+
+The network on SMOTE oversampling, after running `50` epochs, displayed an increased recall of around **95.6%** and an accuracy of around **77.9%**. The confusion matrix is:
+
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1492 | 439 |
+| **Actual: Yes** | 3 | 66 |
+
+By repeating the experiment with `200` epochs we obtained no significant improvement.
+
+## Neural Network (SMOTE-Tomek)
+
+The network on SMOTE-Tomek, after running `50` epochs, displayed a recall of around **92.7%** and an accuracy of around **78.8%**. The confusion matrix is:
+
+| | Pred: No | Pred: Yes |
+| :--- | :---: | :---: |
+| **Actual: No** | 1514 | 417 |
+| **Actual: Yes** | 5 | 64 |
 ## Conclusion 
 
-Across all experiments, the neural network configuration with `200` epochs, a dropout probability of `p=0.1`, and a classification threshold of `0.1` achieved the highest recall.
+From all experiments, and given the context of the problem where it is preferable to trade some accuracy for higher recall (false negatives can be very costly), the best-performing model was the neural network trained after SMOTE resampling.
 
-However, this improvement comes at the cost of reduced accuracy, illustrating the trade-off between correctly identifying positive cases (recall) and avoiding false positives. This trade-off is particularly relevant in imbalanced datasets, where standard accuracy metrics can be misleading.
+It was also observed that increasing the number of epochs from `50` to `200` did not improve the neural network's scores, which may indicate the model had already converged or that more data would be required to benefit from additional training.
 
-Overall, the results suggest that model performance is strongly influenced not only by the choice of model (logistic regression vs neural network), but also by the classification threshold and the underlying class distribution. In this case, logistic regression performs competitively due to the simplicity of the data, while the neural network provides additional flexibility but requires careful tuning to achieve comparable or improved results.
+Overall, both models' performance improved with resampling. Across experiments, logistic regression with SMOTE-Tomek resampling achieved high recall while suffering from the usual precision–recall trade-off.
+
+The neural network configuration with `200` epochs, dropout `p=0.1`, and a classification threshold of `0.1` achieved the highest recall.
+
+However, this improvement came at the cost of reduced accuracy, illustrating the trade-off between correctly identifying positive cases (recall) and avoiding false positives. This trade-off is particularly important in imbalanced datasets, where accuracy alone can be misleading.
+
+In summary, model performance depends not only on the choice of model (logistic regression vs neural network) but also on resampling strategy and the classification threshold. Logistic regression remains a strong baseline due to its simplicity and interpretability, while the neural network provides additional flexibility but requires careful tuning.
