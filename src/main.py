@@ -1,7 +1,6 @@
 import os 
 from dotenv import load_dotenv 
-import data 
-import metrics 
+import data, metrics
 from models.logistic_regression import logistic_regression
 from models import neural_network
 
@@ -20,7 +19,7 @@ def main():
     y = Default["default"].map({"No": 0, "Yes": 1})
     cat = ["student"]
     num = ["balance", "income"]
-
+  
     # Separate the data into training and test sets
     X_train, X_test, y_train, y_test = data.make_splits(
         X=X,
@@ -29,12 +28,12 @@ def main():
         random_state=42,
         shuffle=True
     )
-    
+
     # Apply the transformations
     ct = data.transformer(cat=cat, num=num)
     X_train_transf = ct.fit_transform(X_train)
     X_test_transf = ct.transform(X_test)
-
+    
     # Apply logistic regression
     clf = logistic_regression(fit_intercept= True, max_iter=200)
     clf.fit(X_train_transf, y_train)
@@ -45,9 +44,9 @@ def main():
     # Get confusion matrix and recall score
     matrix = metrics.conf_matrix(y_true=y_test, y_pred=y_hat)
     rec_score = metrics.rec_score(y_true=y_test, y_pred=y_hat)
-
+    
     ###########################
-
+    
     # Apply the Neural Network
     X_shape = neural_network.get_column(X)
 
@@ -91,7 +90,7 @@ def main():
 
     trainer.fit(
         dataloader=default_train_dataloader,
-        epochs=200
+        epochs=50
     )
 
     evals = neural_network.evaluate(
@@ -99,8 +98,6 @@ def main():
         X=X_test_tensor,
         y=y_test_tensor
     )
-
-    print(evals)   
-
+    
 if __name__ == '__main__':
     main()
